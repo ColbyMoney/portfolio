@@ -1,0 +1,109 @@
+<div class="projects-page">
+  <div class="container">
+
+    <header class="page-header">
+      <h1 class="page-header__title">Projects</h1>
+      <p class="page-header__sub">Things I've shipped outside of work</p>
+    </header>
+
+    <!-- Featured Project -->
+    <div class="featured-project">
+      <div class="featured-project__label">Featured</div>
+      <div class="featured-project__inner">
+        <div class="featured-project__header">
+          <div>
+            <h2 class="featured-project__name">stretchwithnikki.com</h2>
+            <p class="featured-project__subtitle">Production-grade virtual flexibility coaching platform</p>
+          </div>
+          <a href="https://stretchwithnikki.com" target="_blank" rel="noopener" class="btn btn--primary">
+            View Live Site ↗
+          </a>
+        </div>
+
+        <p class="featured-project__description">
+          A full-stack virtual coaching platform built end-to-end for a real client — handling everything from authentication and
+          scheduling to live video sessions and email notifications. Designed and architected entirely by me, running live in production.
+        </p>
+
+        <div class="featured-project__highlights">
+          <div class="feat-highlight">
+            <span class="feat-highlight__icon">🔐</span>
+            <div>
+              <strong>JWT Auth + RBAC</strong>
+              <p>Refresh token rotation and role-based access control for admin and client authorization</p>
+            </div>
+          </div>
+          <div class="feat-highlight">
+            <span class="feat-highlight__icon">📅</span>
+            <div>
+              <strong>Custom Calendar Scheduling</strong>
+              <p>Three-tier hierarchy of time slots, day presets, and week presets. Phone-friendly calendar with day, week, month, and year views</p>
+            </div>
+          </div>
+          <div class="feat-highlight">
+            <span class="feat-highlight__icon">🎥</span>
+            <div>
+              <strong>Live Video Sessions</strong>
+              <p>Daily.co SDK integration with private rooms, secure meeting tokens, and race condition handling using optimistic concurrency</p>
+            </div>
+          </div>
+          <div class="feat-highlight">
+            <span class="feat-highlight__icon">📧</span>
+            <div>
+              <strong>Email Automation</strong>
+              <p>Mailgun services for booking confirmations, 1-day and 1-hour reminders, and password resets</p>
+            </div>
+          </div>
+          <div class="feat-highlight">
+            <span class="feat-highlight__icon">☁️</span>
+            <div>
+              <strong>Azure Infrastructure</strong>
+              <p>App Service + SQL Server hosting, KeyVault-secured secrets, and automated CI/CD deployments</p>
+            </div>
+          </div>
+          <div class="feat-highlight">
+            <span class="feat-highlight__icon">🧪</span>
+            <div>
+              <strong>MSTest Unit Tests</strong>
+              <p>Test suite verifying critical business logic including authentication flows and schedule validation</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="featured-project__stack">
+          <span class="badge">.NET</span>
+          <span class="badge">Angular</span>
+          <span class="badge">C#</span>
+          <span class="badge">TypeScript</span>
+          <span class="badge">Azure</span>
+          <span class="badge">SQL Server</span>
+          <span class="badge">Daily.co</span>
+          <span class="badge">Mailgun</span>
+          <span class="badge">JWT</span>
+          <span class="badge">MSTest</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- GitHub Portfolio -->
+    <div class="project-card">
+      <div class="project-card__header">
+        <div>
+          <h3 class="project-card__name">
+            <svg class="project-card__gh-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.66-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02.01 2.04.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            github.com/ColbyMoney
+          </h3>
+          <p class="project-card__sub">Programming project portfolio</p>
+        </div>
+        <a href="https://github.com/ColbyMoney" target="_blank" rel="noopener" class="btn btn--outline">View GitHub ↗</a>
+      </div>
+      <p class="project-card__description">
+        A collection of programming projects demonstrating skills across the full stack — from C# and .NET APIs
+        to Angular frontends and automation tooling.
+      </p>
+    </div>
+
+  </div>
+</div>
