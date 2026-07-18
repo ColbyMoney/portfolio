@@ -1,0 +1,213 @@
+<div class="game-page">
+  <div class="container">
+
+    <!-- Page Header -->
+    <header class="page-header">
+      <h1 class="page-header__title">AI Four-in-a-Row</h1>
+      <p class="page-header__sub">Drop your piece. Outsmart the AI.</p>
+    </header>
+
+    <!-- Mode Selector -->
+    <div class="mode-selector">
+      <button
+        class="mode-btn"
+        [class.mode-btn--active]="mode() === 'ai'"
+        (click)="setMode('ai')">
+        <span class="mode-btn__icon">🤖</span>
+        vs AI
+      </button>
+      <button
+        class="mode-btn"
+        [class.mode-btn--active]="mode() === 'solo'"
+        (click)="setMode('solo')">
+        <span class="mode-btn__icon">👥</span>
+        2 Players
+      </button>
+    </div>
+
+    <!-- Score Panel -->
+    <div class="score-panel">
+      <div class="score-card" [class.score-card--active]="!gameState().gameOver && gameState().currentPlayer === 1">
+        <div class="score-card__piece score-card__piece--red"></div>
+        <div class="score-card__body">
+          <div class="score-card__name">{{ player1Stats().name }}</div>
+          <div class="score-card__stats">
+            <span class="stat"><span class="stat__value stat__value--win">{{ player1Stats().wins }}</span><span class="stat__label">W</span></span>
+            <span class="stat__divider">/</span>
+            <span class="stat"><span class="stat__value stat__value--loss">{{ player1Stats().losses }}</span><span class="stat__label">L</span></span>
+            <span class="stat__divider">/</span>
+            <span class="stat"><span class="stat__value stat__value--draw">{{ player1Stats().draws }}</span><span class="stat__label">D</span></span>
+          </div>
+          <div class="score-card__ratio">{{ winRatio(player1Stats()) }} win rate</div>
+        </div>
+      </div>
+
+      <div class="vs-divider">
+        <span class="vs-divider__text">VS</span>
+        <span class="vs-divider__games">{{ gamesPlayed(player1Stats()) }} played</span>
+      </div>
+
+      <div class="score-card score-card--right" [class.score-card--active]="!gameState().gameOver && gameState().currentPlayer === 2">
+        <div class="score-card__body score-card__body--right">
+          <div class="score-card__name">{{ player2Stats().name }}</div>
+          <div class="score-card__stats">
+            <span class="stat"><span class="stat__value stat__value--win">{{ player2Stats().wins }}</span><span class="stat__label">W</span></span>
+            <span class="stat__divider">/</span>
+            <span class="stat"><span class="stat__value stat__value--loss">{{ player2Stats().losses }}</span><span class="stat__label">L</span></span>
+            <span class="stat__divider">/</span>
+            <span class="stat"><span class="stat__value stat__value--draw">{{ player2Stats().draws }}</span><span class="stat__label">D</span></span>
+          </div>
+          <div class="score-card__ratio">{{ winRatio(player2Stats()) }} win rate</div>
+        </div>
+        <div class="score-card__piece score-card__piece--yellow"></div>
+      </div>
+    </div>
+
+    <!-- Turn Indicator -->
+    <div class="turn-indicator" [class.turn-indicator--thinking]="isAiThinking()">
+      @if (gameState().gameOver) {
+        @if (gameState().winner === 'draw') {
+          <span class="turn-indicator__icon">🤝</span><span>It's a draw!</span>
+        } @else if (gameState().winner === 1) {
+          <span class="turn-indicator__icon">🏆</span><span>{{ player1Stats().name }} wins!</span>
+        } @else {
+          <span class="turn-indicator__icon">🏆</span><span>{{ player2Stats().name }} wins!</span>
+        }
+      } @else if (isAiThinking()) {
+        <span class="turn-indicator__icon turn-indicator__icon--thinking">⚙️</span>
+        <span>AI is thinking…</span>
+      } @else {
+        <div
+          class="turn-indicator__piece"
+          [class.turn-indicator__piece--red]="gameState().currentPlayer === 1"
+          [class.turn-indicator__piece--yellow]="gameState().currentPlayer === 2">
+        </div>
+        @if (gameState().currentPlayer === 1) {
+          <span>{{ player1Stats().name }}'s turn</span>
+        } @else {
+          <span>{{ player2Stats().name }}'s turn</span>
+        }
+      }
+    </div>
+
+    <!-- ── Game Board ─────────────────────────────────────── -->
+    <div class="board-scene">
+      <div class="board-wrapper">
+
+        <!-- Board cells (pointer-events disabled; hit-area handles all input) -->
+        <div class="board">
+          @for (row of rowIndices; track row) {
+            <div class="board-row">
+              @for (col of colIndices; track col) {
+                <div class="cell">
+                  <div class="cell__hole"
+                    [class.cell__hole--hover]="isHoverCol(col)"
+                    [class.cell__hole--winning]="getCellValue(row, col) !== 0 && isWinningCell()(row, col)">
+                    @if (getCellValue(row, col) !== 0 && !isCellHidden(row, col)) {
+                      <div
+                        class="cell__piece"
+                        [class.cell__piece--red]="getCellValue(row, col) === 1"
+                        [class.cell__piece--yellow]="getCellValue(row, col) === 2"
+                        [class.cell__piece--winning]="isWinningCell()(row, col)">
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Win line — drawn through the 4 winning pieces after game ends -->
+        @if (getWinLine(); as wl) {
+          <svg class="win-line-svg" aria-hidden="true">
+            <line class="win-line-outline"
+              [attr.x1]="wl.x1"
+              [attr.y1]="wl.y1"
+              [attr.x2]="wl.x2"
+              [attr.y2]="wl.y2"
+              [attr.stroke-dasharray]="wl.length"
+              [attr.stroke-dashoffset]="wl.length">
+            </line>
+            <line class="win-line"
+              [attr.x1]="wl.x1"
+              [attr.y1]="wl.y1"
+              [attr.x2]="wl.x2"
+              [attr.y2]="wl.y2"
+              [attr.stroke-dasharray]="wl.length"
+              [attr.stroke-dashoffset]="wl.length">
+            </line>
+          </svg>
+        }
+
+        <!-- Falling piece overlay (animates from preview strip down to target cell) -->
+        @if (fallingPiece(); as fp) {
+          <div
+            class="fp-overlay"
+            [class.fp-overlay--red]="fp.player === 1"
+            [class.fp-overlay--yellow]="fp.player === 2"
+            [style.left.px]="fp.leftPx"
+            [style.top.px]="fp.topPx"
+            [style.width.px]="fp.sizePx"
+            [style.height.px]="fp.sizePx"
+            [style.--fall-dist]="fp.fallDistPx + 'px'"
+            [style.--fall-dur]="fp.durationMs + 'ms'">
+          </div>
+        }
+
+        <!--
+          Transparent hit-area covers the preview strip + entire board.
+          A single element means mousemove/click fire on one element only,
+          so there are no gaps between cells that would cause cursor flicker.
+          All children have pointer-events:none so offsetX is always relative
+          to this element.
+        -->
+        <div
+          class="hit-area"
+          [class.hit-area--interactive]="!gameState().gameOver && !isAiThinking() && fallingPiece() === null"
+          [class.hit-area--blocked]="isBlocked()"
+          (mousemove)="onHitAreaMouseMove($event)"
+          (mouseleave)="onHitAreaMouseLeave()"
+          (click)="onHitAreaClick($event)">
+
+          <!-- Drop-preview piece floating above the hovered column -->
+          @if (hoverCol() >= 0 && !gameState().gameOver && !isAiThinking() && fallingPiece() === null) {
+            <div
+              class="drop-preview"
+              [class.drop-preview--red]="gameState().currentPlayer === 1"
+              [class.drop-preview--yellow]="gameState().currentPlayer === 2"
+              [style.top.px]="getPreviewTop()"
+              [style.left.px]="getPreviewLeft(hoverCol())"
+              [style.width.px]="getPreviewSize()"
+              [style.height.px]="getPreviewSize()">
+            </div>
+          }
+        </div>
+
+        <div class="board-base"></div>
+      </div>
+    </div>
+
+    <!-- Game Controls -->
+    <div class="game-controls">
+      <button class="btn btn--ghost btn--sm" (click)="resetGame()">New Game</button>
+      <button class="btn btn--ghost btn--sm" (click)="resetScores()">Reset Scores</button>
+    </div>
+
+    <!-- AI Info Banner -->
+    @if (mode() === 'ai') {
+      <div class="ai-banner">
+        <span class="ai-banner__icon">🔌</span>
+        <div>
+          <strong>AI Backend</strong>
+          <p>
+            Connect a trained model at
+            <code>https://localhost:7117/api/ai-four-in-a-row</code>.
+            Until then, a built-in heuristic handles AI moves automatically.
+          </p>
+        </div>
+      </div>
+    }
+
+  </div>
+</div>

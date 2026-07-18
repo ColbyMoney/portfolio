@@ -1,0 +1,591 @@
+// ─────────────────────────────────────────────
+//  Variables  (MUST match TypeScript LAYOUT_* constants)
+// ─────────────────────────────────────────────
+$cs:  76px;   // cell size
+$cg:  8px;    // cell gap
+$bp:  16px;   // board padding
+$ph:  84px;   // preview-strip height = 1 cell above board (cs + cg)
+$base-h: 10px;
+$board-radius: 20px;
+
+$red-hi:     #ff9e9e;
+$red-mid:    #e53935;
+$red-deep:   #7f0000;
+$yellow-hi:  #fff9c4;
+$yellow-mid: #fdd835;
+$yellow-deep:#8a6200;
+
+$board-face: #1565c0;
+$board-deep: #0a2a7a;
+$board-rim:  #0d47a1;
+$hole-dark:  #061228;
+
+// ─────────────────────────────────────────────
+//  Page Shell
+// ─────────────────────────────────────────────
+.game-page {
+  padding: 8rem 2rem 5rem;
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+}
+
+.page-header {
+  &__title {
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+
+  &__sub {
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Mode Selector
+// ─────────────────────────────────────────────
+.mode-selector {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  &--active {
+    border-color: var(--accent);
+    background: rgba(129, 140, 248, 0.12);
+    color: var(--accent);
+  }
+
+  &__icon { font-size: 1rem; }
+}
+
+// ─────────────────────────────────────────────
+//  Score Panel
+// ─────────────────────────────────────────────
+.score-panel {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+
+  @media (max-width: 500px) { padding: 1rem; gap: 0.75rem; }
+}
+
+.score-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  transition: border-color 0.3s, background 0.3s;
+
+  &--right {
+    flex-direction: row-reverse;
+    .score-card__stats  { justify-content: flex-end; }
+    .score-card__ratio  { text-align: right; }
+    .score-card__name   { text-align: right; }
+  }
+
+  &--active {
+    border-color: rgba(129, 140, 248, 0.35);
+    background: rgba(129, 140, 248, 0.06);
+  }
+
+  &__piece {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    &--red {
+      background: radial-gradient(circle at 38% 32%, $red-hi, $red-mid 45%, $red-deep);
+      box-shadow: 0 2px 8px rgba(229,57,53,.5), inset 0 -2px 4px rgba(0,0,0,.3);
+    }
+
+    &--yellow {
+      background: radial-gradient(circle at 38% 32%, $yellow-hi, $yellow-mid 45%, $yellow-deep);
+      box-shadow: 0 2px 8px rgba(253,216,53,.45), inset 0 -2px 4px rgba(0,0,0,.3);
+    }
+  }
+
+  &__body { flex: 1; }
+  &__body--right { text-align: right; }
+
+  &__name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+  }
+
+  &__stats {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-bottom: 0.2rem;
+  }
+
+  &__ratio {
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-family: var(--font-mono);
+  }
+}
+
+.stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.15rem;
+
+  &__value {
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    &--win  { color: var(--accent-2); }
+    &--loss { color: #f87171; }
+    &--draw { color: var(--muted); }
+  }
+
+  &__label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-family: var(--font-mono);
+  }
+
+  &__divider {
+    color: var(--border);
+    font-size: 0.9rem;
+    margin: 0 0.1rem;
+  }
+}
+
+.vs-divider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  flex-shrink: 0;
+
+  &__text {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  &__games {
+    font-size: 0.65rem;
+    color: var(--border);
+    font-family: var(--font-mono);
+    white-space: nowrap;
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Turn Indicator
+// ─────────────────────────────────────────────
+.turn-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  min-height: 2.25rem;
+  transition: opacity 0.2s;
+
+  &--thinking { opacity: 0.75; }
+
+  &__icon {
+    font-size: 1.2rem;
+    &--thinking {
+      display: inline-block;
+      animation: spin 1.2s linear infinite;
+    }
+  }
+
+  &__piece {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    &--red {
+      background: radial-gradient(circle at 38% 32%, $red-hi, $red-mid 45%, $red-deep);
+      box-shadow: 0 1px 6px rgba(229,57,53,.6);
+      animation: pulse-red 1.5s ease-in-out infinite;
+    }
+
+    &--yellow {
+      background: radial-gradient(circle at 38% 32%, $yellow-hi, $yellow-mid 45%, $yellow-deep);
+      box-shadow: 0 1px 6px rgba(253,216,53,.6);
+      animation: pulse-yellow 1.5s ease-in-out infinite;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Board Scene — 3-D wrapper
+// ─────────────────────────────────────────────
+.board-scene {
+  perspective: 1400px;
+  perspective-origin: 50% 30%;
+  display: flex;
+  justify-content: center;
+}
+
+.board-wrapper {
+  position: relative;
+  transform: rotateX(6deg);
+  display: inline-block;
+  // Reserve space for the preview strip above the board
+  padding-top: $ph;
+  user-select: none;
+}
+
+// ─────────────────────────────────────────────
+//  Board
+// ─────────────────────────────────────────────
+.board {
+  background: linear-gradient(160deg, lighten($board-face, 4%) 0%, $board-face 40%, $board-deep 100%);
+  border-radius: $board-radius;
+  padding: $bp;
+  display: flex;
+  flex-direction: column;
+  gap: $cg;
+  box-shadow:
+    0 0 0 2px $board-rim,
+    0 8px 0 4px darken($board-deep, 8%),
+    0 12px 40px rgba(0,0,0,.7),
+    inset 0 1px 0 rgba(255,255,255,.12),
+    inset 0 -1px 0 rgba(0,0,0,.3);
+  pointer-events: none;
+}
+
+.board-row {
+  display: flex;
+  gap: $cg;
+}
+
+.board-base {
+  height: $base-h;
+  background: linear-gradient(to bottom, darken($board-deep, 10%), darken($board-deep, 18%));
+  border-radius: 0 0 $board-radius $board-radius;
+  box-shadow: 0 6px 20px rgba(0,0,0,.6);
+  margin: 0 4px;
+}
+
+// ─────────────────────────────────────────────
+//  Cells
+// ─────────────────────────────────────────────
+.cell {
+  width: $cs;
+  height: $cs;
+  pointer-events: none;
+
+  &__hole {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: $hole-dark;
+    box-shadow:
+      inset 0 4px 14px rgba(0,0,0,.9),
+      inset 0 1px 2px rgba(0,0,0,.7),
+      0 0 0 1px rgba(0,0,0,.4);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s;
+
+    &--hover {
+      background: lighten($hole-dark, 4%);
+      box-shadow:
+        inset 0 4px 16px rgba(0,0,0,.95),
+        inset 0 1px 2px rgba(0,0,0,.8),
+        0 0 0 1px rgba(255,255,255,.07);
+    }
+
+    &--winning {
+      // Accent ring around the hole; piece brightness handled on .cell__piece--winning
+      box-shadow:
+        inset 0 4px 14px rgba(0,0,0,.9),
+        inset 0 1px 2px rgba(0,0,0,.7),
+        0 0 0 3px rgba(129, 140, 248, 0.85),
+        0 0 14px rgba(129, 140, 248, 0.55);
+    }
+  }
+
+  &__piece {
+    width: 90%;
+    height: 90%;
+    border-radius: 50%;
+    animation: piece-appear 0.12s ease-out both;
+
+    &--red {
+      background: radial-gradient(circle at 35% 28%, $red-hi 0%, $red-mid 45%, $red-deep 100%);
+      box-shadow:
+        0 2px 12px rgba(229,57,53,.7),
+        0 1px 3px rgba(0,0,0,.5),
+        inset 0 -3px 6px rgba(0,0,0,.35);
+    }
+
+    &--yellow {
+      background: radial-gradient(circle at 35% 28%, $yellow-hi 0%, $yellow-mid 45%, $yellow-deep 100%);
+      box-shadow:
+        0 2px 12px rgba(253,216,53,.65),
+        0 1px 3px rgba(0,0,0,.5),
+        inset 0 -3px 6px rgba(0,0,0,.35);
+    }
+
+    &--winning {
+      animation: none;
+      filter: brightness(1.18);
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Falling-piece overlay
+//  Positioned absolutely within .board-wrapper.
+//  TypeScript computes left/top/width/height and
+//  sets --fall-dist / --fall-dur custom props.
+// ─────────────────────────────────────────────
+.fp-overlay {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 4;
+  animation: fall-fp var(--fall-dur, 400ms) cubic-bezier(0.55, 0.05, 0.35, 1.0) forwards;
+
+  &--red {
+    background: radial-gradient(circle at 35% 28%, $red-hi 0%, $red-mid 45%, $red-deep 100%);
+    box-shadow:
+      0 4px 18px rgba(229,57,53,.75),
+      inset 0 -3px 6px rgba(0,0,0,.35);
+  }
+
+  &--yellow {
+    background: radial-gradient(circle at 35% 28%, $yellow-hi 0%, $yellow-mid 45%, $yellow-deep 100%);
+    box-shadow:
+      0 4px 18px rgba(253,216,53,.7),
+      inset 0 -3px 6px rgba(0,0,0,.35);
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Hit-area — transparent overlay for all input
+// ─────────────────────────────────────────────
+.hit-area {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  // Exclude board-base from interactive region
+  bottom: $base-h;
+  z-index: 5;
+  cursor: default;
+
+  // All visual children must be non-interactive so offsetX
+  // is always relative to this element.
+  > * { pointer-events: none; }
+
+  &--interactive { cursor: pointer; }
+  &--blocked     { cursor: not-allowed; }
+}
+
+// Drop-preview piece inside the hit-area's preview strip
+// `top` is set inline by TypeScript (getPreviewTop) so position is exact.
+.drop-preview {
+  position: absolute;
+  border-radius: 50%;
+  animation: float 0.75s ease-in-out infinite alternate;
+
+  &--red {
+    background: radial-gradient(circle at 35% 28%, $red-hi 0%, $red-mid 45%, $red-deep 100%);
+    box-shadow:
+      0 4px 18px rgba(229,57,53,.65),
+      inset 0 -2px 4px rgba(0,0,0,.25);
+  }
+
+  &--yellow {
+    background: radial-gradient(circle at 35% 28%, $yellow-hi 0%, $yellow-mid 45%, $yellow-deep 100%);
+    box-shadow:
+      0 4px 18px rgba(253,216,53,.6),
+      inset 0 -2px 4px rgba(0,0,0,.25);
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Win line SVG overlay
+// ─────────────────────────────────────────────
+.win-line-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 3;
+}
+
+.win-line-outline {
+  stroke: #080c14;
+  stroke-width: 14;
+  stroke-linecap: round;
+  fill: none;
+  animation: win-line-draw 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.win-line {
+  stroke: #ffffff;
+  stroke-width: 10;
+  stroke-linecap: round;
+  fill: none;
+  animation: win-line-draw 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+// ─────────────────────────────────────────────
+//  Game Controls
+// ─────────────────────────────────────────────
+.game-controls {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+// ─────────────────────────────────────────────
+//  AI Info Banner
+// ─────────────────────────────────────────────
+.ai-banner {
+  display: flex;
+  gap: 0.9rem;
+  align-items: flex-start;
+  background: rgba(129,140,248,.06);
+  border: 1px solid rgba(129,140,248,.2);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  font-size: 0.85rem;
+
+  &__icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 0.1rem; }
+
+  strong { display: block; color: var(--text); margin-bottom: 0.25rem; font-size: 0.875rem; }
+
+  p { color: var(--muted); line-height: 1.6; margin: 0; }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    background: rgba(129,140,248,.12);
+    color: var(--accent);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Mobile
+// ─────────────────────────────────────────────
+@media (max-width: 620px) {
+  $cs-m: 44px;
+  $cg-m: 5px;
+  $bp-m: 10px;
+  $ph-m: 49px;  // cs-m + cg-m = 1 cell above board
+
+  .board-wrapper { padding-top: $ph-m; }
+
+  .board {
+    padding: $bp-m;
+    gap: $cg-m;
+  }
+
+  .board-row { gap: $cg-m; }
+
+  .cell {
+    width: $cs-m;
+    height: $cs-m;
+  }
+  // drop-preview top is set inline by TypeScript on mobile too
+}
+
+// ─────────────────────────────────────────────
+//  Keyframes
+// ─────────────────────────────────────────────
+
+// Falling piece overlay: from its starting position (centred in preview strip)
+// translateY-s down to the target cell, with a small bounce at the end.
+@keyframes fall-fp {
+  0%  { transform: translateY(0); }
+  78% { transform: translateY(calc(var(--fall-dist) + 6px)); }
+  90% { transform: translateY(calc(var(--fall-dist) - 3px)); }
+  100%{ transform: translateY(var(--fall-dist)); }
+}
+
+@keyframes win-line-draw {
+  // Animate stroke-dashoffset from its initial attribute value (= line length) to 0
+  to { stroke-dashoffset: 0; }
+}
+
+
+
+// Subtle pop when a cell piece first appears after the overlay clears
+@keyframes piece-appear {
+  from { transform: scale(0.55); opacity: 0.6; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+@keyframes pulse-red {
+  0%,100% { box-shadow: 0 1px 6px rgba(229,57,53,.35); }
+  50%     { box-shadow: 0 2px 12px rgba(229,57,53,.9); }
+}
+
+@keyframes pulse-yellow {
+  0%,100% { box-shadow: 0 1px 6px rgba(253,216,53,.3); }
+  50%     { box-shadow: 0 2px 12px rgba(253,216,53,.85); }
+}
+
+@keyframes float {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-5px); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+

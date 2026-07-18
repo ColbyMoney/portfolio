@@ -177,4 +177,11 @@
     color: var(--muted);
     line-height: 1.7;
   }
+
+  &__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
 }
