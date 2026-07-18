@@ -99,7 +99,7 @@ $hole-dark:  #061228;
   border-radius: 16px;
   padding: 1.25rem 1.5rem;
 
-  @media (max-width: 500px) { padding: 1rem; gap: 0.75rem; }
+//   @media (max-width: 500px) { padding: 1rem; gap: 0.75rem; }
 }
 
 .score-card {
@@ -541,6 +541,39 @@ $hole-dark:  #061228;
     height: $cs-m;
   }
   // drop-preview top is set inline by TypeScript on mobile too
+
+  .score-panel {
+    padding: 0.6rem 0.65rem;
+    gap: 0.35rem;
+    border-radius: 10px;
+  }
+
+  .score-card {
+    gap: 0.4rem;
+    padding: 0.35rem 0.4rem;
+
+    &__piece {
+      width: 20px;
+      height: 20px;
+    }
+
+    &__name {
+      font-size: 0.6rem;
+      margin-bottom: 0.1rem;
+    }
+
+    &__ratio { font-size: 0.48rem; }
+  }
+
+  .stat {
+    &__value { font-size: 0.62rem; }
+    &__label { font-size: 0.46rem; }
+  }
+
+  .vs-divider {
+    &__text  { font-size: 0.5rem; }
+    &__games { font-size: 0.44rem; }
+  }
 }
 
 // ─────────────────────────────────────────────
