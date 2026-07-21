@@ -4,13 +4,21 @@ import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Board } from './game.service';
 
+export type Difficulty = 'medium' | 'hard' | 'legendary';
+
 export interface AiMoveRequest {
   board: number[][];
-  player: number;
+  current_player: number;
+  difficulty?: Difficulty;
+  use_mcts?: boolean;
 }
 
 export interface AiMoveResponse {
-  column: number;
+  move: number;
+  probabilities: Record<string, number>;
+  value: number;
+  game_over: boolean;
+  winner: number | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -19,20 +27,22 @@ export class AiService {
   private readonly apiUrl = (() => {
     const host = window.location.hostname;
     if (host === 'colbymoney.com') {
-      return 'https://colbymoney.com/api/ai-four-in-a-row';
+      return 'https://colbymoney.com/api/ai-four-in-a-row/get-move';
     }
-    return 'https://localhost:7117/api/ai-four-in-a-row';
+    return 'http://localhost:8000/api/ai-four-in-a-row/get-move';
   })();
 
   constructor(private http: HttpClient) {}
 
-  getMove(board: Board, player: 1 | 2): Observable<number> {
+  getMove(board: Board, current_player: 1 | 2, difficulty: Difficulty, useMcts = true): Observable<number> {
     const request: AiMoveRequest = {
       board: board.map(row => [...row]),
-      player,
+      current_player,
+      difficulty,
+      use_mcts: useMcts,
     };
     return this.http.post<AiMoveResponse>(this.apiUrl, request).pipe(
-      map(res => res.column),
+      map(res => res.move),
       catchError(() => of(this.fallbackMove(board)))
     );
   }

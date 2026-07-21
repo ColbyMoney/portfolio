@@ -8,6 +8,7 @@ export interface GameState {
   currentPlayer: 1 | 2;
   winner: 1 | 2 | 'draw' | null;
   winningCells: [number, number][];
+  winLines: [number, number][][];
   gameOver: boolean;
 }
 
@@ -29,6 +30,7 @@ export class GameService {
       currentPlayer: (Math.random() < 0.5 ? 1 : 2) as 1 | 2,
       winner: null,
       winningCells: [],
+      winLines: [],
       gameOver: false,
     };
   }
@@ -61,7 +63,7 @@ export class GameService {
     const newBoard = state.board.map(r => [...r]) as Board;
     newBoard[row][col] = state.currentPlayer;
 
-    const { winner, winningCells } = this.checkWinner(newBoard, row, col, state.currentPlayer);
+    const { winner, winningCells, winLines } = this.checkWinner(newBoard, row, col, state.currentPlayer);
     const isDraw = !winner && this.isDraw(newBoard);
 
     const newState: GameState = {
@@ -69,6 +71,7 @@ export class GameService {
       currentPlayer: state.currentPlayer === 1 ? 2 : 1,
       winner: winner ?? (isDraw ? 'draw' : null),
       winningCells,
+      winLines,
       gameOver: winner !== null || isDraw,
     };
 
@@ -80,8 +83,10 @@ export class GameService {
     lastRow: number,
     lastCol: number,
     player: 1 | 2
-  ): { winner: 1 | 2 | null; winningCells: [number, number][] } {
+  ): { winner: 1 | 2 | null; winningCells: [number, number][]; winLines: [number, number][][] } {
     const directions: [number, number][] = [[0, 1], [1, 0], [1, 1], [1, -1]];
+    const winLines: [number, number][][] = [];
+    const cellSet = new Set<string>();
 
     for (const [dr, dc] of directions) {
       const cells: [number, number][] = [[lastRow, lastCol]];
@@ -101,11 +106,20 @@ export class GameService {
       }
 
       if (cells.length >= 4) {
-        return { winner: player, winningCells: cells };
+        winLines.push(cells);
+        cells.forEach(([r, c]) => cellSet.add(`${r},${c}`));
       }
     }
 
-    return { winner: null, winningCells: [] };
+    if (winLines.length > 0) {
+      const winningCells = [...cellSet].map(k => {
+        const [r, c] = k.split(',').map(Number);
+        return [r, c] as [number, number];
+      });
+      return { winner: player, winningCells, winLines };
+    }
+
+    return { winner: null, winningCells: [], winLines: [] };
   }
 
   isDraw(board: Board): boolean {

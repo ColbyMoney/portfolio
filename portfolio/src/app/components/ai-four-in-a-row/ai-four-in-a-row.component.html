@@ -23,7 +23,81 @@
         <span class="mode-btn__icon">👥</span>
         2 Players
       </button>
+      <button
+        class="mode-btn"
+        [class.mode-btn--active]="mode() === 'watch'"
+        (click)="setMode('watch')">
+        <span class="mode-btn__icon">👁️</span>
+        AI vs AI
+      </button>
     </div>
+
+    <!-- Model Selector -->
+    @if (mode() !== 'solo') {
+      <div class="model-selector">
+        @if (mode() === 'ai') {
+          <div class="model-selector__group">
+            <span class="model-selector__label">AI Difficulty</span>
+            <div class="model-selector__btns">
+              @for (m of modelInfos; track m.id) {
+                <button
+                  class="model-btn"
+                  [class.model-btn--active]="difficulty() === m.id"
+                  (click)="setDifficulty(m.id)">
+                  {{ m.label }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+        @if (mode() === 'watch') {
+          <div class="model-selector__group">
+            <span class="model-selector__label">
+              <span class="model-selector__dot model-selector__dot--red"></span>Red AI
+            </span>
+            <div class="model-selector__btns">
+              @for (m of modelInfos; track m.id) {
+                <button
+                  class="model-btn"
+                  [class.model-btn--active]="difficulty1() === m.id"
+                  (click)="setDifficulty1(m.id)">
+                  {{ m.label }}
+                </button>
+              }
+            </div>
+          </div>
+          <div class="model-selector__group">
+            <span class="model-selector__label">
+              <span class="model-selector__dot model-selector__dot--yellow"></span>Yellow AI
+            </span>
+            <div class="model-selector__btns">
+              @for (m of modelInfos; track m.id) {
+                <button
+                  class="model-btn"
+                  [class.model-btn--active]="difficulty2() === m.id"
+                  (click)="setDifficulty2(m.id)">
+                  {{ m.label }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+        <div class="model-selector__group model-selector__group--row">
+          <span class="model-selector__label">Toggle Deep Thinking Mode</span>
+          <button
+            class="mcts-toggle"
+            [class.mcts-toggle--on]="useMcts()"
+            (click)="toggleMcts()"
+            [title]="useMcts() ? 'Deep Thinking ON — using MCTS for stronger play' : 'Deep Thinking OFF — using fast greedy policy'"
+            aria-label="Toggle Deep Thinking Mode">
+            <span class="mcts-toggle__track">
+              <span class="mcts-toggle__thumb"></span>
+            </span>
+            <span class="mcts-toggle__state">{{ useMcts() ? 'ON' : 'OFF' }}</span>
+          </button>
+        </div>
+      </div>
+    }
 
     <!-- Score Panel -->
     <div class="score-panel">
@@ -48,6 +122,7 @@
       </div>
 
       <div class="score-card score-card--right" [class.score-card--active]="!gameState().gameOver && gameState().currentPlayer === 2">
+        <div class="score-card__piece score-card__piece--yellow"></div>
         <div class="score-card__body score-card__body--right">
           <div class="score-card__name">{{ player2Stats().name }}</div>
           <div class="score-card__stats">
@@ -59,7 +134,6 @@
           </div>
           <div class="score-card__ratio">{{ winRatio(player2Stats()) }} win rate</div>
         </div>
-        <div class="score-card__piece score-card__piece--yellow"></div>
       </div>
     </div>
 
@@ -75,7 +149,11 @@
         }
       } @else if (isAiThinking()) {
         <span class="turn-indicator__icon turn-indicator__icon--thinking">⚙️</span>
-        <span>AI is thinking…</span>
+        @if (mode() === 'watch') {
+          <span>{{ gameState().currentPlayer === 1 ? player1Stats().name : player2Stats().name }} is thinking…</span>
+        } @else {
+          <span>AI is thinking…</span>
+        }
       } @else {
         <div
           class="turn-indicator__piece"
@@ -118,25 +196,28 @@
           }
         </div>
 
-        <!-- Win line — drawn through the 4 winning pieces after game ends -->
-        @if (getWinLine(); as wl) {
+        <!-- Win lines — one drawn line per connect-4 group the winning piece participates in -->
+        @let winLines = getWinLines();
+        @if (winLines.length > 0) {
           <svg class="win-line-svg" aria-hidden="true">
-            <line class="win-line-outline"
-              [attr.x1]="wl.x1"
-              [attr.y1]="wl.y1"
-              [attr.x2]="wl.x2"
-              [attr.y2]="wl.y2"
-              [attr.stroke-dasharray]="wl.length"
-              [attr.stroke-dashoffset]="wl.length">
-            </line>
-            <line class="win-line"
-              [attr.x1]="wl.x1"
-              [attr.y1]="wl.y1"
-              [attr.x2]="wl.x2"
-              [attr.y2]="wl.y2"
-              [attr.stroke-dasharray]="wl.length"
-              [attr.stroke-dashoffset]="wl.length">
-            </line>
+            @for (wl of winLines; track $index) {
+              <line class="win-line-outline"
+                [attr.x1]="wl.x1"
+                [attr.y1]="wl.y1"
+                [attr.x2]="wl.x2"
+                [attr.y2]="wl.y2"
+                [attr.stroke-dasharray]="wl.length"
+                [attr.stroke-dashoffset]="wl.length">
+              </line>
+              <line class="win-line"
+                [attr.x1]="wl.x1"
+                [attr.y1]="wl.y1"
+                [attr.x2]="wl.x2"
+                [attr.y2]="wl.y2"
+                [attr.stroke-dasharray]="wl.length"
+                [attr.stroke-dashoffset]="wl.length">
+              </line>
+            }
           </svg>
         }
 
@@ -194,18 +275,36 @@
       <button class="btn btn--ghost btn--sm" (click)="resetScores()">Reset Scores</button>
     </div>
 
-    <!-- AI Info Banner -->
-    @if (mode() === 'ai') {
-      <div class="ai-banner">
-        <span class="ai-banner__icon">🔌</span>
-        <div>
-          <strong>AI Backend</strong>
-          <p>
-            Connect a trained model at
-            <code>https://localhost:7117/api/ai-four-in-a-row</code>.
-            Until then, a built-in heuristic handles AI moves automatically.
-          </p>
-        </div>
+    <!-- Model Documentation -->
+    @if (activeModels().length > 0) {
+      <div class="model-docs">
+        @for (model of activeModels(); track model.id) {
+          <div class="model-card">
+            <div class="model-card__header">
+              <span class="model-card__name">{{ model.label }}</span>
+              <span class="model-card__tagline">"{{ model.tagline }}"</span>
+            </div>
+            <div class="model-card__stats">
+              <span class="stat-chip">MCTS <strong>{{ model.mctsSims }}</strong></span>
+              <span class="stat-chip">Games <strong>{{ model.gamesPlayed }}</strong></span>
+              <span class="stat-chip">Loss <strong>{{ model.loss }}</strong></span>
+              <span class="stat-chip">Training Time: <strong>{{ model.trainingTime }}</strong></span>
+            </div>
+            <div class="model-card__section">
+              <div class="model-card__section-label">Strengths</div>
+              <ul class="model-card__strengths">
+                @for (s of model.strengths; track s) {
+                  <li>{{ s }}</li>
+                }
+              </ul>
+            </div>
+            <div class="model-card__weakness">
+              <span class="model-card__weakness-label">⚠ Fatal Weakness</span>
+              <span class="model-card__weakness-text">{{ model.fatalWeakness }}</span>
+            </div>
+            <div class="model-card__howto">How to defeat it: {{ model.howToBeat }}</div>
+          </div>
+        }
       </div>
     }
 
