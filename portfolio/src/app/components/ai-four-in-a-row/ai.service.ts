@@ -27,7 +27,7 @@ export class AiService {
   private readonly apiUrl = (() => {
     const host = window.location.hostname;
     if (host === 'colbymoney.com') {
-      return 'https://colbymoney.com/api/ai-four-in-a-row/get-move';
+      return 'https://colbymoney-atb7d9btfudefze6.centralus-01.azurewebsites.net/api/ai-four-in-a-row/get-move';
     }
     return 'http://localhost:8000/api/ai-four-in-a-row/get-move';
   })();
